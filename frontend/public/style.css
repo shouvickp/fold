@@ -1,0 +1,235 @@
+/* Basic Reset and Typography */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #f0f2f5;
+    margin: 0;
+    padding: 0;
+    color: #333;
+}
+
+.header {
+    background-color: #fff;
+    padding: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    text-align: left;
+    color: #ffc400e4;
+}
+
+/* Style for the note title input field */
+.note-title {
+    /* 1. Remove all default borders */
+    border: none !important;
+    
+    /* 2. Add a border only to the bottom */
+    border-bottom: 2px solid #555 !important; /* Adjust thickness and color as needed */
+    
+    /* 3. Ensure the background is transparent so it doesn't cover the line */
+    background-color: transparent !important;
+    
+    /* 4. Match font and padding for better appearance (optional but recommended) */
+    font-size: 1.2em !important; /* Makes the title larger */
+    padding: 5px 5px !important;   /* Adds a little vertical spacing */
+    width: 100% !important;      /* Makes it span the full width of its container */
+    border-radius: 0px !important;
+    /* 5. Optional: Remove the default focus outline */
+    outline: none !important;
+}
+
+/* Note Grid Layout */
+.note-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 20px;
+    justify-content: left;
+}
+
+/* Note Card Styling */
+.note-card {
+    width: 250px;
+    min-height: 250px;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    /* Styles for the notes in your image */
+    background-color: #ffeb3b; /* Default yellow */
+}
+
+/* Specific Note Card Colors (based on the Flask backend) */
+.note-card.yellow {
+    background-color: #ffeb3b; /* Bright Yellow */
+}
+/* You can add more colors here if you extend the Flask app */
+
+.note-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 10px rgba(0,0,0,0.15);
+}
+
+.note-card pre {
+    margin: 0;
+    padding: 0;
+    font-size: 14px;
+    line-height: 1.4;
+    font-family: inherit;
+    white-space: pre-wrap; /* Respect newlines and word wrap */
+}
+
+/* New Note Card (The Add Button) */
+.new-note-card {
+    background-color: #ffffff;
+    border: 2px dashed #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.plus-icon {
+    font-size: 50px;
+    color: #ccc;
+    font-weight: 100;
+}
+
+.note-actions {
+    display: flex;
+    justify-content: flex-start;
+    gap: 5px;
+    margin-top: 10px;
+}
+.note-actions .edit-btn {
+    /* Auto margin pushes the element away from the next element */
+    margin-right: auto; 
+    /* Optional: If you want the buttons to align at the edges of the card */
+    margin-left: 0;
+}
+.action-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    padding: 5px;
+    border-radius: 5px;
+    transition: background-color 0.2s;
+}
+
+/* Modal Styling */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none; /* Hidden by default */
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.modal-content h2 {
+    margin-top: 0;
+    text-align: center;
+}
+
+.modal-content textarea {
+    width: 100%;
+    height: 150px;
+    padding: 10px;
+    margin: 15px 0;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    resize: vertical;
+    font-size: 14px;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.create-btn, .close-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+
+.create-btn {
+    background-color: #8a2be2; /* Purple from your image */
+    color: white;
+}
+
+.create-btn:hover {
+    background-color: #6a1ba0;
+}
+
+.close-btn {
+    background-color: #ddd;
+    color: #333;
+}
+
+.close-btn:hover {
+    background-color: #bbb;
+}
+
+/* Note Card Styling Updates */
+
+.note-card.existing-note-card {
+    /* Ensure the title and content fit nicely */
+    overflow: hidden;
+}
+
+.note-title {
+    font-size: 16px;
+    font-weight: bold;
+    margin: 0 0 8px 0; /* Space below the title */
+    color: #000;
+    /* Truncate long titles */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.note-content-preview {
+    /* Use flex-grow to take up remaining space */
+    flex-grow: 1; 
+    overflow-y: hidden; /* Hide scrollbar for a cleaner look */
+}
+
+/* Modal Styling Updates */
+
+.modal-content input[type="text"], 
+.modal-content textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0; /* Reduced margin for spacing between title/content inputs */
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.modal-content input[type="text"] {
+    /* Make the title input a bit shorter */
+    height: 40px; 
+}
