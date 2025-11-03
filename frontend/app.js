@@ -3,6 +3,8 @@ var app = express();
 // 💡 New: Require the axios library
 const axios = require('axios');
 
+require('dotenv').config();
+
 // Middleware to parse incoming request bodies (essential for POST requests)
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
@@ -12,7 +14,7 @@ app.set('view engine', 'ejs');
 app.use(express.static('public')); 
 
 // --- Configuration ---
-const BACKEND_URL = 'http://localhost:8000/api'; 
+const BACKEND_URL = `${process.env.API_BASE_URL}/api`;
 // ---------------------
 
 // --- Routes ---
@@ -24,7 +26,6 @@ app.get('/', async function(req, res) {
         let response = await axios.get(BACKEND_URL + '/notes');
         // Axios wraps the response data in the 'data' property
         let data = response.data; 
-        console.log(data);
         const processedNotes = data.map(note => ({
             // Extract the simple ID string
             id: note._id.$oid, 
