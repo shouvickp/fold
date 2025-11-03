@@ -1,0 +1,34 @@
+version: '1.0.1'
+
+services:
+
+  backend:
+    build: backend
+    hostname: fold-service
+    volumes:
+      - ./backend:/app
+    environment:
+      - MONGO_URI=mongodb+srv://<username>:<password>@cluster0.0a3wgbh.mongodb.net/?appName=Cluster0
+    ports:
+      - "8000:8000"
+    networks:
+      - fold-network
+
+  frontend:
+    build: frontend
+    hostname: fold-ui
+    volumes:
+      - ./frontend:/app
+    environment:
+      - API_BASE_URL=http://fold-service:8000
+    ports:
+      - "3000:3000"
+    links:
+      - backend
+    depends_on:
+      - backend
+    networks:
+      - fold-network
+
+networks:
+  fold-network: {}
