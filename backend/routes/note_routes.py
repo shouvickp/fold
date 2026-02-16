@@ -1,133 +1,193 @@
-from flask import Blueprint, request, jsonify
-from models import Note
+from flask import Blueprint, jsonify, request
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
-note_routes = Blueprint('note_routes', __name__, url_prefix='/api/notes')
+from models.note_model import Note
+from utils.validators import (
+    Validator,
+    ValidationError,
+    handle_validation_error
+)
 
-# --- Helper Functions to Reduce Duplication ---
+from datetime import datetime
 
-def get_note_by_id(note_id):
-    """
-    Validates note_id, fetches the note, and returns the note object or an error tuple.
-    
-    Returns: (Note object, None) on success.
-    Returns: (None, (jsonify response, status_code)) on failure.
-    """
-    if not note_id:
-        return None, (jsonify({"msg": "Note ID is required."}), 400)
-    
-    # NOTE: Python uses len() instead of .len for string length
-    if len(note_id.strip()) != 24:
-        # Assuming a 24-character MongoDB ObjectId format
-        return None, (jsonify({"msg": "Note ID is invalid (must be 24 characters)."}), 400)
 
-    note = Note.objects(id=note_id).first()
-    
-    if not note:
-        return None, (jsonify({"msg": "Note not found"}), 404)
-        
-    return note, None # Success: return note object, no error
+note_routes = Blueprint(
+    "note_routes",
+    __name__,
+    url_prefix="/api/notes"
+)
 
-def validate_note_payload():
-    """
-    Validates title and content from request data.
-    
-    Returns: (clean_data dict, None) on success.
-    Returns: (None, (jsonify response, status_code)) on failure.
-    """
-    data = request.get_json()
-    if not data:
-        return None, (jsonify({"msg": "Payload must be valid JSON."}), 400)
-        
-    title = data.get('title')
-    content = data.get('content')
-    
-    if not title or not isinstance(title, str) or not title.strip():
-        # Strip is important to catch strings with only spaces
-        return None, (jsonify({ "msg": "Title is required and cannot be empty."}), 400)
-        
-    if not content or not isinstance(content, str) or not content.strip():
-        return None, (jsonify({"msg":"Content is required and cannot be empty."}), 400)
-        
-    # Return cleaned data for insertion/update
-    clean_data = {
-        "title": title.strip(),
-        "content": content.strip()
-    }
-    
-    return clean_data, None # Success: return cleaned data, no error
 
-# ---------------------------------------------
+# -----------------------------------------
+# CREATE NOTE
+# -----------------------------------------
 
-@note_routes.route('/', methods=['GET'])
-def get_notes():
-    """Fetches all notes from MongoDB and returns them."""
-    notes = Note.objects().to_json()
-    return notes, 200
-
-@note_routes.route('/add', methods=['POST'])
+@note_routes.route("/", methods=["POST"])
+@jwt_required()
 def create_note():
-    """Creates a new note and inserts it into MongoDB."""
-    
-    # 1. Use helper for validation
-    validated_data, error_tuple = validate_note_payload()
-    if error_tuple:
-        return error_tuple # Returns (jsonify, 400)
 
-    title = validated_data['title']
+    try:
 
-    # 2. Check for duplicate title (unique constraint logic)
-    if Note.objects(title=title).first():
-        return jsonify({"msg": "Note with the same title already exists."}), 400
+        user_id = get_jwt_identity()
 
-    # 3. Create and save
-    note = Note(**validated_data)
-    note.save()
-    return note.to_json(), 201
+        data = Validator.validate_json_request()
 
-@note_routes.route('/<string:note_id>', methods=['GET'])
+        validated_data = Validator.validate_note_payload(data)
+
+        note = Note(
+            title=validated_data["title"],
+            content=validated_data["content"],
+            user_id=user_id
+        )
+
+        note.save()
+
+        return jsonify({
+            "msg": "Note created successfully",
+            "note": note.to_dict()
+        }), 201
+
+    except ValidationError as error:
+        return handle_validation_error(error)
+
+    except Exception:
+        return jsonify({"msg": "Internal server error"}), 500
+
+
+# -----------------------------------------
+# GET ALL NOTES FOR USER
+# -----------------------------------------
+
+@note_routes.route("/", methods=["GET"])
+@jwt_required()
+def get_notes():
+
+    try:
+
+        user_id = get_jwt_identity()
+
+        notes = Note.objects(user_id=user_id)
+
+        return jsonify([
+            note.to_dict()
+            for note in notes
+        ]), 200
+
+    except Exception:
+        return jsonify({"msg": "Internal server error"}), 500
+
+
+# -----------------------------------------
+# GET SINGLE NOTE
+# -----------------------------------------
+
+@note_routes.route("/<note_id>", methods=["GET"])
+@jwt_required()
 def get_note(note_id):
-    """Fetches a single note by ID from MongoDB and returns it."""
-    
-    # Use helper to validate ID and fetch note
-    note, error_tuple = get_note_by_id(note_id)
-    if error_tuple:
-        return error_tuple # Returns (jsonify, 400 or 404)
 
-    # Note is guaranteed to exist here
-    return note.to_json(), 200
+    try:
 
-@note_routes.route('/<string:note_id>', methods=['PUT'])
+        Validator.validate_object_id(note_id)
+
+        user_id = get_jwt_identity()
+
+        note = Note.objects(
+            id=note_id,
+            user_id=user_id
+        ).first()
+
+        if not note:
+            return jsonify({
+                "msg": "Note not found"
+            }), 404
+
+        return jsonify(note.to_dict()), 200
+
+    except ValidationError as error:
+        return handle_validation_error(error)
+
+    except Exception:
+        return jsonify({"msg": "Internal server error"}), 500
+
+
+# -----------------------------------------
+# UPDATE NOTE
+# -----------------------------------------
+
+@note_routes.route("/<note_id>", methods=["PUT"])
+@jwt_required()
 def update_note(note_id):
-    """Updates a note by ID in MongoDB."""
-    
-    # 1. Validate ID and fetch existing note
-    note, error_tuple = get_note_by_id(note_id)
-    if error_tuple:
-        return error_tuple # Returns (jsonify, 400 or 404)
-        
-    # 2. Validate payload data
-    validated_data, error_tuple = validate_note_payload()
-    if error_tuple:
-        return error_tuple # Returns (jsonify, 400)
-    
-    # 3. Check for duplicate title if title is being changed
-    new_title = validated_data['title']
-    if new_title != note.title and Note.objects(title=new_title).first():
-        return jsonify({"msg": "Note with the same title already exists."}), 400
-    
-    # 4. Update the note
-    note.update(**validated_data) 
-    return jsonify({"msg": "Note updated successfully"}), 200
 
-@note_routes.route('/<note_id>', methods=['DELETE'])
+    try:
+
+        Validator.validate_object_id(note_id)
+
+        user_id = get_jwt_identity()
+
+        note = Note.objects(
+            id=note_id,
+            user_id=user_id
+        ).first()
+
+        if not note:
+            return jsonify({
+                "msg": "Note not found"
+            }), 404
+
+        data = Validator.validate_json_request()
+
+        validated_data = Validator.validate_note_payload(data)
+
+        note.title = validated_data["title"]
+        note.content = validated_data["content"]
+        note.updated_at = datetime.utcnow()
+
+        note.save()
+
+        return jsonify({
+            "msg": "Note updated successfully",
+            "note": note.to_dict()
+        }), 200
+
+    except ValidationError as error:
+        return handle_validation_error(error)
+
+    except Exception:
+        return jsonify({"msg": "Internal server error"}), 500
+
+
+# -----------------------------------------
+# DELETE NOTE
+# -----------------------------------------
+
+@note_routes.route("/<note_id>", methods=["DELETE"])
+@jwt_required()
 def delete_note(note_id):
-    """Deletes a note by ID from MongoDB."""
-    
-    # Use helper to validate ID and fetch existing note
-    note, error_tuple = get_note_by_id(note_id)
-    if error_tuple:
-        return error_tuple # Returns (jsonify, 400 or 404)
 
-    # Note is guaranteed to exist here
-    note.delete()
-    return jsonify({"msg": "Note deleted successfully"}), 200
+    try:
+
+        Validator.validate_object_id(note_id)
+
+        user_id = get_jwt_identity()
+
+        note = Note.objects(
+            id=note_id,
+            user_id=user_id
+        ).first()
+
+        if not note:
+            return jsonify({
+                "msg": "Note not found"
+            }), 404
+
+        note.delete()
+
+        return jsonify({
+            "msg": "Note deleted successfully"
+        }), 200
+
+    except ValidationError as error:
+        return handle_validation_error(error)
+
+    except Exception:
+        return jsonify({"msg": "Internal server error"}), 500

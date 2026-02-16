@@ -1,205 +1,163 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Fold: Note App</title>
-    <link rel="stylesheet" href="/style.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-</head>
-<body>
-    <div class="header">
-        <h1>&#x1F4C2; The Fold</h1>
-    </div>
 
-    <div class="note-container">
-        <div class="note-card new-note-card" onclick="openCreateModal()">
-            <div class="plus-icon">+</div>
+    <title>The Fold — Modern Notes</title>
+
+    <link rel="stylesheet" href="/style.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
+</head>
+
+<body>
+
+    <header class="app-header">
+
+        <div class="logo">
+            <i class="fa-solid fa-layer-group"></i>
+            <span>The Fold</span>
         </div>
+
+        <div class="header-right">
+
+            <span class="welcome-text">
+                <i class="fa-solid fa-user"></i> Welcome
+            </span>
+
+            <% if (!mfa_enabled) { %>
+
+                <button onclick="window.location='/setup-mfa'" class="mfa-btn">
+
+                    <i class="fa-solid fa-shield-halved"></i>
+
+                    Enable MFA
+
+                </button>
+
+                <% } else { %>
+
+                    <button class="mfa-btn mfa-enabled" disabled>
+
+                        <i class="fa-solid fa-check"></i>
+
+                        MFA Enabled
+
+                    </button>
+
+                    <% } %>
+
+
+                        <a href="/logout" class="logout-btn">
+                            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                            Logout
+                        </a>
+
+        </div>
+
+    </header>
+
+
+    <main class="notes-grid">
 
         <% notes.forEach(function(note) { %>
-            <div class="note-card existing-note-card <%= note.color %>">
-                <h3><%= note.title %></h3>
-                <pre><%= note.content %></pre>
-                <div class="note-actions">
-                    <button 
-                        class="action-btn edit-btn"
-                        data-id="<%= note.id %>"
-                        data-title="<%= note.title %>"
-                        data-content="<%= note.content %>"
-                        onclick="openEditModal(this)"
-                    ><i class="fa fa-edit" style="font-size:18px;color:blue"></i></button>
-                    <button class="action-btn delete-btn" 
-                    onclick="handleNoteDeletion('<%= note.id %>')"><i class="fa fa-trash" style="font-size:18px;color:red"></i></button>
+
+            <div class="note-card fade-in">
+
+                <div class="note-body">
+
+                    <h3>
+                        <%= note.title %>
+                    </h3>
+
+                    <p>
+                        <%= note.content %>
+                    </p>
+
                 </div>
+
+                <div class="note-footer">
+
+                    <button onclick="openEditModal(this)" data-id="<%= note.id %>" data-title="<%= note.title %>"
+                        data-content="<%= note.content %>">
+
+                        <i class="fa-solid fa-pen"></i>
+
+                    </button>
+
+                    <button onclick="handleNoteDeletion('<%= note.id %>')">
+
+                        <i class="fa-solid fa-trash"></i>
+
+                    </button>
+
+                </div>
+
             </div>
-        <% }); %>
-    </div>
+
+            <% }); %>
+
+    </main>
+
+
+
+    <!-- Floating Button -->
+
+    <button class="floating-btn" onclick="openCreateModal()">
+        <i class="fa-solid fa-plus"></i>
+    </button>
+
+
+
+    <!-- Modal -->
 
     <div id="modal" class="modal">
-        <div class="modal-content">
-            <form id="noteForm" onsubmit="handleNoteSubmit(event)"> 
-                
-                <input type="hidden" name="note_id" id="note_id" value="">
-                
-                <input type="hidden" name="_method" id="form_method" value="POST">
 
-                <input type="text" name="note_title" id="note_title_input" class="note-title" placeholder="New Note">
-                <textarea name="note_content" id="note_content_input" placeholder="Enter your note..."></textarea>
-                
-                <div class="modal-actions">
-                    <button type="submit" id="submit_note_btn" class="create-btn">Create Note</button>
-                    <button type="button" class="close-btn" onclick="document.getElementById('modal').style.display='none'">Close</button>
+        <div class="modal-card">
+
+            <h2 id="modalTitle">Create Note</h2>
+
+            <form onsubmit="handleNoteSubmit(event)">
+
+                <input type="hidden" id="note_id">
+
+                <input type="hidden" id="form_method" value="POST">
+
+                <input type="text" id="note_title_input" placeholder="Title" required>
+
+                <textarea id="note_content_input" placeholder="Write your note..." required></textarea>
+
+                <div class="modal-buttons">
+
+                    <button type="submit" class="primary-btn">
+                        Save
+                    </button>
+
+                    <button type="button" class="secondary-btn" onclick="closeModal()">
+                        Cancel
+                    </button>
+
                 </div>
+
             </form>
+
         </div>
+
     </div>
 
+
+
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        // Simple JS to ensure the modal closes with ESC key
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                document.getElementById('modal').style.display = 'none';
-            }
-        });
 
-        const noteForm = document.getElementById('noteForm');
-        const modal = document.getElementById('modal');
+    <script src="/app.js"></script>
 
-        // 💡 NEW: Function to prepare the modal for CREATING a new note
-        function openCreateModal() {
-            noteForm.reset(); // Clear previous data
-            document.getElementById('note_id').value = ''; // Ensure ID is empty
-            document.getElementById('form_method').value = 'POST'; // Set method to POST
-            document.getElementById('submit_note_btn').textContent = 'Create Note';
-            modal.style.display = 'flex';
-        }
-        
-        // 💡 NEW: Function to prepare the modal for EDITING an existing note
-        function openEditModal(buttonElement) {
-            const noteId = buttonElement.getAttribute('data-id');
-            const title = buttonElement.getAttribute('data-title');
-            const content = buttonElement.getAttribute('data-content');
-
-            // Populate form fields
-            document.getElementById('note_id').value = noteId;
-            document.getElementById('note_title_input').value = title;
-            document.getElementById('note_content_input').value = content;
-            
-            // Set form configuration for PUT request
-            document.getElementById('form_method').value = 'PUT';
-            document.getElementById('submit_note_btn').textContent = 'Save Changes';
-            
-            modal.style.display = 'flex';
-        }
-
-        // 💡 MODIFIED: A single handler for both CREATE (POST) and EDIT (PUT)
-        async function handleNoteSubmit(event) {
-            event.preventDefault();
-            
-            const id = document.getElementById('note_id').value;
-            const method = document.getElementById('form_method').value;
-            const title = document.getElementById('note_title_input').value;
-            const content = document.getElementById('note_content_input').value;
-            
-            // Determine the URL based on the method
-            // POST goes to /note, PUT goes to /note/:id
-            const url = (method === 'PUT') ? `/note/${id}` : '/note';
-            
-            try {
-                const response = await fetch(url, {
-                    method: method,
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: new URLSearchParams({
-                        note_title: title,
-                        note_content: content
-                    })
-                });
-
-                const result = await response.json();
-
-                if (response.ok && result.success) {
-                    document.getElementById('modal').style.display = 'none';
-                    Swal.fire({
-                        icon: 'success',
-                        title: (method === 'PUT') ? 'Note Updated!' : 'Note Created!',
-                        text: result.message || 'Success!',
-                        timer: 1500,
-                        showConfirmButton: false
-                    }).then(() => {
-                        window.location.reload(); 
-                    });
-                } else {
-                    const errorMessage = result.message || 'An unknown error occurred.';
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Oops...',
-                        text: errorMessage,
-                    });
-                }
-
-            } catch (error) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Network Error',
-                    text: 'Could not connect to the server.',
-                });
-            }
-        }
-        
-        // 💡 NOTE: The existing handleNoteDeletion function is copied below
-        async function handleNoteDeletion(noteId) {
-            const result = await Swal.fire({
-                title: 'Are you sure?',
-                text: "You won't be able to revert this!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, delete it!'
-            });
-
-            if (!result.isConfirmed) {
-                return; 
-            }
-
-            try {
-                // The Express DELETE route should be `/note/remove/:id` for this to work
-                const response = await fetch(`/note/remove/${noteId}`, { 
-                    method: 'DELETE' 
-                });
-
-                const result = await response.json();
-
-                if (response.ok && result.success) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Deleted!',
-                        text: result.message || 'Your note has been deleted.',
-                        timer: 1500,
-                        showConfirmButton: false
-                    }).then(() => {
-                        window.location.reload(); 
-                    });
-                } else {
-                    const errorMessage = result.message || 'An unknown error occurred.';
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Deletion Failed',
-                        text: `Could not delete note: ${errorMessage}`,
-                    });
-                }
-
-            } catch (error) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Network Error',
-                    text: 'Could not connect to the Express server.',
-                });
-            }
-        }
-    </script>
 </body>
+
 </html>

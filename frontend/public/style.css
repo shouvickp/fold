@@ -1,235 +1,656 @@
-/* Basic Reset and Typography */
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background-color: #f0f2f5;
+
+    font-family: 'Inter', sans-serif;
+
     margin: 0;
-    padding: 0;
+
+    background: linear-gradient(135deg, #667eea, #764ba2);
+
+    min-height: 100vh;
+
     color: #333;
+
 }
 
-.header {
-    background-color: #fff;
-    padding: 10px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    text-align: left;
-    color: #ffc400e4;
-}
 
-/* Style for the note title input field */
-.note-title {
-    /* 1. Remove all default borders */
-    border: none !important;
-    
-    /* 2. Add a border only to the bottom */
-    border-bottom: 2px solid #555 !important; /* Adjust thickness and color as needed */
-    
-    /* 3. Ensure the background is transparent so it doesn't cover the line */
-    background-color: transparent !important;
-    
-    /* 4. Match font and padding for better appearance (optional but recommended) */
-    font-size: 1.2em !important; /* Makes the title larger */
-    padding: 5px 5px !important;   /* Adds a little vertical spacing */
-    width: 100% !important;      /* Makes it span the full width of its container */
-    border-radius: 0px !important;
-    /* 5. Optional: Remove the default focus outline */
-    outline: none !important;
-}
+.app-header {
 
-/* Note Grid Layout */
-.note-container {
     display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    padding: 20px;
-    justify-content: left;
-}
 
-/* Note Card Styling */
-.note-card {
-    width: 250px;
-    min-height: 250px;
-    padding: 15px;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    transition: transform 0.2s;
-    display: flex;
-    flex-direction: column;
     justify-content: space-between;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    /* Styles for the notes in your image */
-    background-color: #ffeb3b; /* Default yellow */
+
+    align-items: center;
+
+    padding: 20px 40px;
+
+    background: rgba(255, 255, 255, 0.15);
+
+    backdrop-filter: blur(10px);
+
+    color: white;
+
 }
 
-/* Specific Note Card Colors (based on the Flask backend) */
-.note-card.yellow {
-    background-color: #ffeb3b; /* Bright Yellow */
+
+.logo {
+
+    font-size: 22px;
+
+    font-weight: 600;
+
+    display: flex;
+
+    gap: 10px;
+
 }
-/* You can add more colors here if you extend the Flask app */
+
+
+.new-btn {
+
+    background: white;
+
+    border: none;
+
+    padding: 10px 20px;
+
+    border-radius: 8px;
+
+    cursor: pointer;
+
+    font-weight: 600;
+
+    transition: .3s;
+
+}
+
+.new-btn:hover {
+
+    transform: scale(1.05);
+
+}
+
+
+
+.notes-grid {
+
+    display: grid;
+
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+
+    gap: 20px;
+
+    padding: 30px;
+
+}
+
+
+
+.note-card {
+
+    background: white;
+
+    border-radius: 12px;
+
+    padding: 20px;
+
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: space-between;
+
+    transition: .3s;
+
+}
+
 
 .note-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 10px rgba(0,0,0,0.15);
+
+    transform: translateY(-5px);
+
 }
 
-.note-card pre {
+
+.note-body h3 {
+
     margin: 0;
-    padding: 0;
-    font-size: 14px;
-    line-height: 1.4;
-    font-family: inherit;
-    white-space: pre-wrap; /* Respect newlines and word wrap */
-}
 
-/* New Note Card (The Add Button) */
-.new-note-card {
-    background-color: #ffffff;
-    border: 2px dashed #ccc;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-}
-
-.plus-icon {
-    font-size: 50px;
-    color: #ccc;
-    font-weight: 100;
-}
-
-.note-actions {
-    display: flex;
-    justify-content: flex-start;
-    gap: 5px;
-    margin-top: 10px;
-}
-.note-actions .edit-btn {
-    /* Auto margin pushes the element away from the next element */
-    margin-right: auto; 
-    /* Optional: If you want the buttons to align at the edges of the card */
-    margin-left: 0;
-}
-.action-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
     font-size: 18px;
-    padding: 5px;
-    border-radius: 5px;
-    transition: background-color 0.2s;
+
 }
 
-/* Modal Styling */
-.modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: none; /* Hidden by default */
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
+
+.note-body p {
+
+    opacity: .7;
+
+    margin-top: 10px;
+
+    white-space: pre-wrap;
+
 }
 
-.modal-content {
-    background-color: #fff;
-    padding: 30px;
-    border-radius: 10px;
-    width: 90%;
-    max-width: 400px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-}
 
-.modal-content h2 {
-    margin-top: 0;
-    text-align: center;
-}
+.note-footer {
 
-.modal-content textarea {
-    width: 100%;
-    height: 150px;
-    padding: 10px;
-    margin: 15px 0;
-    box-sizing: border-box;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    resize: vertical;
-    font-size: 14px;
-}
-
-.modal-actions {
     display: flex;
-    justify-content: center;
+
+    justify-content: flex-end;
+
     gap: 10px;
+
+    margin-top: 15px;
+
 }
 
-.create-btn, .close-btn {
-    padding: 10px 20px;
+
+.note-footer button {
+
     border: none;
-    border-radius: 5px;
+
+    background: none;
+
     cursor: pointer;
-    font-weight: bold;
-    transition: background-color 0.2s;
-}
 
-.create-btn {
-    background-color: #8a2be2; /* Purple from your image */
-    color: white;
-}
-
-.create-btn:hover {
-    background-color: #6a1ba0;
-}
-
-.close-btn {
-    background-color: #ddd;
-    color: #333;
-}
-
-.close-btn:hover {
-    background-color: #bbb;
-}
-
-/* Note Card Styling Updates */
-
-.note-card.existing-note-card {
-    /* Ensure the title and content fit nicely */
-    overflow: hidden;
-}
-
-.note-title {
     font-size: 16px;
-    font-weight: bold;
-    margin: 0 0 8px 0; /* Space below the title */
-    color: #000;
-    /* Truncate long titles */
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+
+    opacity: .6;
+
+    transition: .2s;
+
 }
 
-.note-content-preview {
-    /* Use flex-grow to take up remaining space */
-    flex-grow: 1; 
-    overflow-y: hidden; /* Hide scrollbar for a cleaner look */
+
+.note-footer button:hover {
+
+    opacity: 1;
+
+    transform: scale(1.2);
+
 }
 
-/* Modal Styling Updates */
 
-.modal-content input[type="text"], 
-.modal-content textarea {
+
+.floating-btn {
+
+    position: fixed;
+
+    bottom: 30px;
+
+    right: 30px;
+
+    width: 60px;
+
+    height: 60px;
+
+    border-radius: 50%;
+
+    border: none;
+
+    background: #ffcc00;
+
+    font-size: 22px;
+
+    cursor: pointer;
+
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+
+    transition: .3s;
+
+}
+
+
+.floating-btn:hover {
+
+    transform: scale(1.1);
+
+}
+
+
+
+.modal {
+
+    position: fixed;
+
+    top: 0;
+
+    left: 0;
+
     width: 100%;
-    padding: 10px;
-    margin: 8px 0; /* Reduced margin for spacing between title/content inputs */
-    box-sizing: border-box;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 14px;
+
+    height: 100%;
+
+    background: rgba(0, 0, 0, .4);
+
+    display: none;
+
+    justify-content: center;
+
+    align-items: center;
+
 }
 
-.modal-content input[type="text"] {
-    /* Make the title input a bit shorter */
-    height: 40px; 
+
+.modal-card {
+
+    background: white;
+
+    padding: 30px;
+
+    border-radius: 12px;
+
+    width: 400px;
+
+    animation: scaleIn .3s ease;
+
+}
+
+
+.modal-card input,
+.modal-card textarea {
+
+    width: 100%;
+
+    margin-top: 10px;
+
+    padding: 10px;
+
+    border-radius: 8px;
+
+    border: 1px solid #ddd;
+
+}
+
+
+.modal-buttons {
+
+    margin-top: 15px;
+
+    display: flex;
+
+    gap: 10px;
+
+}
+
+
+.primary-btn {
+
+    background: #667eea;
+
+    color: white;
+
+    border: none;
+
+    padding: 10px;
+
+    border-radius: 8px;
+
+    cursor: pointer;
+
+    flex: 1;
+
+}
+
+
+.secondary-btn {
+
+    background: #eee;
+
+    border: none;
+
+    padding: 10px;
+
+    border-radius: 8px;
+
+    cursor: pointer;
+
+    flex: 1;
+
+}
+
+
+
+.fade-in {
+
+    animation: fadeIn .5s ease;
+
+}
+
+
+@keyframes fadeIn {
+
+    from {
+        opacity: 0;
+        transform: translateY(10px)
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0)
+    }
+
+}
+
+
+@keyframes scaleIn {
+
+    from {
+        transform: scale(.8)
+    }
+
+    to {
+        transform: scale(1)
+    }
+
+}
+
+.auth-body {
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    height: 100vh;
+
+    background: linear-gradient(135deg, #667eea, #764ba2);
+
+}
+
+
+.auth-container {
+
+    background: white;
+
+    padding: 40px;
+
+    border-radius: 12px;
+
+    width: 300px;
+
+    align-items: center;
+
+    text-align: center;
+
+}
+
+
+.auth-container input {
+
+    width: 92%;
+
+    padding: 10px;
+
+    margin-top: 10px;
+
+}
+
+
+.auth-container button {
+
+    width: 100%;
+
+    margin-top: 15px;
+
+    padding: 10px;
+
+    background: #667eea;
+
+    color: white;
+
+    border: none;
+
+}
+
+
+.error {
+
+    color: red;
+
+    margin-top: 10px;
+
+}
+
+.header-right {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 20px;
+
+}
+
+
+.welcome-text {
+
+    color: white;
+
+    font-weight: 500;
+
+    opacity: 0.9;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 6px;
+
+}
+
+
+/* Logout Button */
+
+.logout-btn {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    padding: 8px 18px;
+
+    border-radius: 8px;
+
+    background: rgba(255, 255, 255, 0.15);
+
+    color: white;
+
+    text-decoration: none;
+
+    font-weight: 500;
+
+    transition: all 0.25s ease;
+
+    border: 1px solid rgba(255, 255, 255, 0.2);
+
+    backdrop-filter: blur(6px);
+
+}
+
+
+.logout-btn:hover {
+
+    background: #ff4d4d;
+
+    border-color: #ff4d4d;
+
+    transform: translateY(-1px);
+
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+
+}
+
+
+.logout-btn i {
+
+    font-size: 14px;
+
+}
+
+.auth-footer {
+
+    margin-top: 20px;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    gap: 10px;
+
+    flex-wrap: wrap;
+
+}
+
+
+.auth-footer-text {
+
+    color: #666;
+
+    font-size: 14px;
+
+}
+
+
+.register-btn {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    padding: 8px 16px;
+
+    border-radius: 8px;
+
+    background: linear-gradient(135deg, #667eea, #764ba2);
+
+    color: white;
+
+    text-decoration: none;
+
+    font-size: 14px;
+
+    font-weight: 500;
+
+    transition: all .25s ease;
+
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+
+}
+
+
+.register-btn:hover {
+
+    transform: translateY(-2px);
+
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+
+    background: linear-gradient(135deg, #5a6fd8, #6a42a0);
+
+}
+
+/* ================= MFA BUTTON ================= */
+
+.mfa-btn {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    padding: 10px 18px;
+
+    border-radius: 10px;
+
+    border: none;
+
+    cursor: pointer;
+
+    font-weight: 600;
+
+    font-size: 14px;
+
+    color: white;
+
+    background: linear-gradient(135deg, #00c853, #009624);
+
+    box-shadow: 0 4px 12px rgba(0, 200, 83, 0.4);
+
+    transition: all 0.25s ease;
+
+}
+
+
+/* Hover */
+
+.mfa-btn:hover {
+
+    transform: translateY(-2px);
+
+    box-shadow: 0 6px 18px rgba(0, 200, 83, 0.6);
+
+    background: linear-gradient(135deg, #00e676, #00c853);
+
+}
+
+
+/* Click */
+
+.mfa-btn:active {
+
+    transform: scale(0.96);
+
+}
+
+
+/* Icon */
+
+.mfa-btn i {
+
+    font-size: 15px;
+
+}
+
+
+/* ================= MFA ENABLED STATE ================= */
+
+.mfa-enabled {
+
+    background: linear-gradient(135deg, #2962ff, #0039cb);
+
+    box-shadow: 0 4px 12px rgba(41, 98, 255, 0.4);
+
+    cursor: default;
+
+}
+
+
+.mfa-enabled:hover {
+
+    transform: none;
+
+    box-shadow: 0 4px 12px rgba(41, 98, 255, 0.4);
+
+}
+
+
+/* Disabled */
+
+.mfa-btn:disabled {
+
+    background: #ccc;
+
+    box-shadow: none;
+
+    cursor: not-allowed;
+
 }
