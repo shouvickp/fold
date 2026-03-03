@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fold-backend
+spec:
+  selector:
+    matchLabels:
+      app: fold-backend
+  template:
+    metadata:
+      labels:
+        app: fold-backend
+    spec:
+      containers:
+      - name: fold-backend
+        image: docker.io/shouvickp/fold-backend
+        ports:
+        - containerPort: 8000
+        env:
+        - name: MONGO_URI
+          value: mongodb://mongo.fold-test.svc.cluster.local:27017/fold
+        - name: JWT_SECRET_KEY
+          value: "5ec@Et"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fold-backend
+spec:
+  selector:
+    app: fold-backend
+  ports:
+  - port: 80
+    targetPort: 8000
+  type: NodePort

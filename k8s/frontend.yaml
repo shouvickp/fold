@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fold-frontend
+spec:
+  selector:
+    matchLabels:
+      app: fold-frontend
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: fold-frontend
+    spec:
+      containers:
+      - name: fold-frontend
+        image: docker.io/shouvickp/fold-frontend
+        ports:
+        - containerPort: 3000
+        env:
+        - name: API_BASE_URL
+          value: http://fold-backend.fold-test.svc.cluster.local
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fold-frontend
+spec:
+  selector:
+    app: fold-frontend
+  ports:
+  - port: 80
+    targetPort: 3000
+  type: ClusterIP
